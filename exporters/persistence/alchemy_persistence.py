@@ -77,7 +77,7 @@ class BaseAlchemyPersistence(BasePersistence):
     def generate_new_job(self):
         if not self.engine:
             self._db_init()
-        new_job = Job(last_position='None', configuration=json.dumps(self.configuration))
+        new_job = Job(last_position='null', configuration=json.dumps(self.configuration))
         self.session.add(new_job)
         self.session.commit()
         self.persistence_state_id = new_job.id
@@ -164,12 +164,13 @@ Name of the database in which store jobs persistence
 class MysqlPersistence(BaseAlchemyPersistence):
     PROTOCOL = 'mysql'
     __doc__ = _docstring.format(protocol=PROTOCOL)
+    uri_regex = '(?P<proto>mysql)://(?P<database>.+):(?P<job_id>\d+)'
 
 
 class PostgresqlPersistence(BaseAlchemyPersistence):
     PROTOCOL = 'postgresql'
     __doc__ = _docstring.format(protocol=PROTOCOL)
-
+    uri_regex = '(?P<proto>postgres)://(?P<database>.+):(?P<job_id>\d+)'
 
 class SqlitePersistence(BaseAlchemyPersistence):
     PROTOCOL = 'postgresql'

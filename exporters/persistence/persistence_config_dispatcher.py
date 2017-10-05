@@ -10,7 +10,6 @@ class PersistenceConfigDispatcher(object):
 
     def get_module_from_uri(self):
         persistence_regexes = {m.uri_regex: m for m in PERSISTENCE_LIST}
-
         for regex, module in persistence_regexes.iteritems():
             if re.match(regex, self.uri):
                 return module
@@ -20,5 +19,4 @@ class PersistenceConfigDispatcher(object):
 
     @property
     def config(self):
-        return self.persistence_dispatcher.configuration_from_uri(
-            self.uri, self.persistence_dispatcher.uri_regex)
+        return self.persistence_dispatcher.configuration_from_uri(self.uri)

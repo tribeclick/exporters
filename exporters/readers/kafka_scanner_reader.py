@@ -33,6 +33,9 @@ class KafkaScannerReader(BaseReader):
         'topic': {'type': six.string_types},
         'partitions': {'type': int_list, 'default': None},
         'ssl_configs': {'type': dict, 'default': None},
+        'decompress': {'type': bool, 'default': True},
+        'msgformat': {'type': six.string_types, 'default': "msgpack"},
+        'min_lower_offsets': {'type': dict, 'default': None}
     }
 
     def __init__(self, *args, **kwargs):
@@ -41,10 +44,13 @@ class KafkaScannerReader(BaseReader):
         brokers = self.read_option('brokers')
         topic = self.read_option('topic')
         partitions = self.read_option('partitions')
-
         scanner = KafkaScanner(brokers, topic, partitions=partitions,
                                batchsize=self.read_option('batch_size'),
-                               ssl_configs=self.read_option('ssl_configs'))
+                               ssl_configs=self.read_option('ssl_configs'),
+                               decompress=self.read_option('decompress'),
+                               msgformat=self.read_option('msgformat'),
+                               min_lower_offsets=self.read_option('min_lower_offsets'),
+                               )
 
         self.batches = scanner.scan_topic_batches()
 
@@ -55,7 +61,7 @@ class KafkaScannerReader(BaseReader):
         self.logger.info('KafkaScannerReader has been initiated.'
                          'Topic: {}.'.format(topic_str))
 
-    @retry_short
+    #@retry_short
     def get_from_kafka(self):
         return self.batches.next()
 
@@ -71,7 +77,7 @@ class KafkaScannerReader(BaseReader):
                 item = BaseRecord(message)
                 self.increase_read()
                 yield item
-        except:
+        except StopIteration as e:
             self.finished = True
         self.logger.debug('Done reading batch')
 
