@@ -1,7 +1,9 @@
 """
 Kafka reader
 """
+import logging
 import six
+
 from exporters.readers.base_reader import BaseReader
 from exporters.records.base_record import BaseRecord
 from exporters.default_retries import retry_short
@@ -24,6 +26,16 @@ class KafkaScannerReader(BaseReader):
         - partitions (list)
             Partitions to read from.
 
+        - ssl_configs (dict)
+        
+        - decompress (boolean)
+            Whether to unzip messages or not
+        
+        - msgformat (string)
+            Format of the messages (supports msgpack or json)
+
+        - min_lower_offsets: (dict)
+            Dict with minimum offsetss to stop at. Good for recurring exports.
     """
 
     # List of options to set up the reader
@@ -35,7 +47,7 @@ class KafkaScannerReader(BaseReader):
         'ssl_configs': {'type': dict, 'default': None},
         'decompress': {'type': bool, 'default': True},
         'msgformat': {'type': six.string_types, 'default': "msgpack"},
-        'min_lower_offsets': {'type': dict, 'default': None}
+        'min_lower_offsets': {'type': dict, 'default': None},
     }
 
     def __init__(self, *args, **kwargs):
@@ -61,7 +73,10 @@ class KafkaScannerReader(BaseReader):
         self.logger.info('KafkaScannerReader has been initiated.'
                          'Topic: {}.'.format(topic_str))
 
-    #@retry_short
+        logger = logging.getLogger('kafka_scanner')
+        logger.setLevel(logging.WARN)
+    
+    @retry_short
     def get_from_kafka(self):
         return self.batches.next()
 
