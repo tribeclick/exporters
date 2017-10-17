@@ -1,7 +1,6 @@
 # ATTENTION: be mindful of adding dependencies to this file
 # remember to load a dependency lazily when appropriate
 
-#mysql-python==1.2.5
 SQLAlchemy==1.0.5
 PyYAML==3.11
 psycopg2==2.6.1
@@ -14,3 +13,5 @@ retrying>=1.2.3
 requests==2.5.3
 six==1.9.0
 decorator
+
+fastavro

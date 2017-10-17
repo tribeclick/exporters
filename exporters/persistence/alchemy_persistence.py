@@ -21,6 +21,7 @@ class Job(Base):
     last_committed = Column(DateTime)
     job_finished = Column(Boolean)
     configuration = Column(Text, nullable=False)
+    job_type = Column(Text)
 
 
 class BaseAlchemyPersistence(BasePersistence):
@@ -29,7 +30,9 @@ class BaseAlchemyPersistence(BasePersistence):
         'password': {'type': six.string_types},
         'host': {'type': six.string_types},
         'port': {'type': six.integer_types},
-        'database': {'type': six.string_types}
+        'database': {'type': six.string_types},
+        'job_type': {'type': six.string_types, 'default': None}
+
     }
     PROTOCOL = None
 
@@ -50,6 +53,7 @@ class BaseAlchemyPersistence(BasePersistence):
             port=self.read_option('port'),
             database=self.read_option('database'),
         )
+        self.job_type = self.read_option('job_type')
         self.engine = create_engine(db_uri)
         Base.metadata.create_all(self.engine)
         Base.metadata.bind = self.engine
@@ -77,7 +81,8 @@ class BaseAlchemyPersistence(BasePersistence):
     def generate_new_job(self):
         if not self.engine:
             self._db_init()
-        new_job = Job(last_position='null', configuration=json.dumps(self.configuration))
+        new_job = Job(last_position='null', job_type=self.job_type,
+                configuration=json.dumps(self.configuration))
         self.session.add(new_job)
         self.session.commit()
         self.persistence_state_id = new_job.id
