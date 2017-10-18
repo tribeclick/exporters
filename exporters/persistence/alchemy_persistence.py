@@ -68,12 +68,11 @@ class BaseAlchemyPersistence(BasePersistence):
 
     def commit_position(self, last_position=None):
         self.last_position = last_position
-
         self.session.query(Job).filter(Job.id == self.persistence_state_id).update(
             {"last_position": json.dumps(self.last_position),
              "last_committed": datetime.datetime.now()}, synchronize_session='fetch')
         self.session.commit()
-        self.logger.debug('Commited batch number ' + str(self.last_position) +
+        self.logger.info('Commited batch number ' + str(self.last_position) +
                           ' of job: ' + str(self.persistence_state_id))
         self.set_metadata('commited_positions',
                           self.get_metadata('commited_positions') + 1)

@@ -17,3 +17,7 @@ class LoggingStatsManager(BasicStatsManager):
             data[field] = (value - prev).total_seconds()
             prev = value
         self.logger.info(json.dumps(data))
+
+    def final_report(self):
+        self.logger.info(repr(self.metadata.to_dict()))
+
