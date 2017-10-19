@@ -27,10 +27,10 @@ class KafkaScannerReader(BaseReader):
             Partitions to read from.
 
         - ssl_configs (dict)
-        
+
         - decompress (boolean)
             Whether to unzip messages or not
-        
+
         - msgformat (string)
             Format of the messages (supports msgpack or json)
 
@@ -75,7 +75,7 @@ class KafkaScannerReader(BaseReader):
 
         logger = logging.getLogger('kafka_scanner')
         logger.setLevel(logging.WARN)
-    
+
     @retry_short
     def get_from_kafka(self):
         return self.batches.next()
@@ -105,3 +105,73 @@ class KafkaScannerReader(BaseReader):
             self.last_position = {}
         else:
             self.last_position = last_position
+
+class KafkaScannerDirectReader(KafkaScannerReader):
+    """
+    This reader retrieves items from kafka brokers.
+
+        - batch_size (int)
+            Number of items to be returned in each batch
+
+        - brokers (list)
+            List of brokers uris.
+
+        - topic (str)
+            Topic to read from.
+
+        - partitions (list)
+            Partitions to read from.
+
+        - ssl_configs (dict)
+
+        - decompress (boolean)
+            Whether to unzip messages or not
+
+        - msgformat (string)
+            Format of the messages (supports msgpack or json)
+
+        - keep_offsets: (dict)
+            If True, use committed offsets as starting ones. Else start from earlies offsets.
+    """
+
+    # List of options to set up the reader
+    supported_options = {
+        'batch_size': {'type': six.integer_types, 'default': 1000},
+        'brokers': {'type': str_list},
+        'topic': {'type': six.string_types},
+        'partitions': {'type': int_list, 'default': None},
+        'consumer_group': {'type': six.string_types},
+        'ssl_configs': {'type': dict, 'default': None},
+        'decompress': {'type': bool, 'default': True},
+        'msgformat': {'type': six.string_types, 'default': "msgpack"},
+        'keep_offsets': {'type': bool, 'default': True},
+    }
+
+    def __init__(self, *args, **kwargs):
+        from kafka_scanner import KafkaScannerDirect
+        super(KafkaScannerDirectReader, self).__init__(*args, **kwargs)
+        brokers = self.read_option('brokers')
+        topic = self.read_option('topic')
+        partitions = self.read_option('partitions')
+        scanner = KafkaScannerDirect(brokers, topic,
+                               group=self.read_option('consumer_group'),
+                               partitions=partitions,
+                               batchsize=self.read_option('batch_size'),
+                               ssl_configs=self.read_option('ssl_configs'),
+                               decompress=self.read_option('decompress'),
+                               msgformat=self.read_option('msgformat'),
+                               keep_offsets=self.read_option('keep_offsets'),
+                               )
+
+        self.batches = scanner.scan_topic_batches()
+
+        if partitions:
+            topic_str = '{} (partitions: {})'.format(topic, partitions)
+        else:
+            topic_str = topic
+        self.logger.info('KafkaScannerDirectReader has been initiated.'
+                         'Topic: {}.'.format(topic_str))
+
+        logger = logging.getLogger('kafka_scanner')
+        logger.setLevel(logging.WARN)
+
