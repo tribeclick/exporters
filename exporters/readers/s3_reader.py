@@ -17,7 +17,7 @@ def patch_http_response_read(func):
     def inner(*args):
         try:
             return func(*args)
-        except httplib.IncompleteRead, e:
+        except httplib.IncompleteRead as e:
             return e.partial
 
     return inner
@@ -153,6 +153,8 @@ class S3Reader(StreamBasedReader):
             S3 key name pattern (REGEX). All files that don't match this regex string will be
             discarded by the reader.
 
+        - delete_keys (bool)
+            Delete keys. Good for bypassing s3 to s3 pipelines
     """
 
     # List of options to set up the reader
@@ -169,12 +171,14 @@ class S3Reader(StreamBasedReader):
         'prefix': {'type': six.string_types + (list,), 'default': ''},
         'prefix_pointer': {'type': six.string_types, 'default': None},
         'pattern': {'type': six.string_types, 'default': None},
-        'prefix_format_using_date': {'type': six.string_types + (tuple, list), 'default': None}
+        'prefix_format_using_date': {'type': six.string_types + (tuple, list), 'default': None},
+        'delete_keys': {'type': bool, 'default': False},
     }
 
     def __init__(self, *args, **kwargs):
         super(S3Reader, self).__init__(*args, **kwargs)
         bucket_name = self.read_option('bucket')
+        self.delete_keys = self.read_option('delete_keys')
         self.logger.info('Starting S3Reader for bucket: %s' % bucket_name)
 
         self.bucket = get_bucket(bucket_name,
@@ -185,7 +189,7 @@ class S3Reader(StreamBasedReader):
                                                 self.read_option('aws_access_key_id'),
                                                 self.read_option('aws_secret_access_key'))
         self.keys = self.keys_fetcher.pending_keys()
-        self.logger.info('S3Reader has been initiated')
+        self.logger.info('S3Reader has been initiated with delete_keys={}'.format(self.delete_keys))
 
     def open_stream(self, stream):
         self.logger.info('Opening {}'.format(stream.filename))
@@ -196,3 +200,6 @@ class S3Reader(StreamBasedReader):
         for key_name in self.keys:
             key = self.bucket.get_key(key_name)
             yield Stream(key_name, key.size, None)
+            if self.delete_keys:
+                self.logger.info("S3READER: DELETING key {}".format(key_name))
+                key.delete()

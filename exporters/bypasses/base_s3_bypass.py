@@ -24,6 +24,7 @@ class BaseS3Bypass(BaseBypass):
         self.bypass_state = None
         self.set_metadata('keys_written', [])
         self.set_metadata('items_count', 0)
+        self.delete_keys = config.reader_options['options'].get('delete_keys')
 
     @classmethod
     def meets_conditions(cls, config):
@@ -72,6 +73,9 @@ class BaseS3Bypass(BaseBypass):
             self._copy_key(source_bucket, key)
             self.bypass_state.commit_copied_key(key)
             logging.log(logging.INFO, 'Copied key {}'.format(key))
+            if self.delete_keys:
+                self.logger.debug("BaseS3Bypass: DELETING key {}".format(key))
+                self._delete_key(source_bucket, key)
 
     def _update_count_metadata(self, key, total):
         items_count = self.get_metadata('items_count')
@@ -88,6 +92,10 @@ class BaseS3Bypass(BaseBypass):
         else:
             self.valid_total_count = False
         self._copy_s3_key(key)
+
+    def _delete_key(self, source_bucket, key_name):
+        key = source_bucket.get_key(key_name)
+        key.delete()
 
     def _copy_s3_key(self, key):
         raise NotImplementedError
