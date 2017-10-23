@@ -36,7 +36,7 @@ setup(
         'hubstorage': ['hubstorage', 'collection_scanner'],
         'jq': ['jq'],
         'odo': ['flatson', 'odo', 'pandas'],
-        'kafka': ['kafka-python', 'msgpack-python', 'kafka_scanner=0.3.4'],
+        'kafka': ['kafka-python', 'msgpack-python', 'kafka_scanner'],
         'notifications': ['Jinja2'],
         'csv': ['boltons'],
         'gcloud': ['gcloud'],
