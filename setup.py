@@ -27,7 +27,7 @@ setup(
     dependency_links = [
         'git@github.com:scrapinghub/collection-scanner.git@0.1.5#egg=collection_scanner',
         'git@github.com:scrapinghub/flatson.git#egg=flatson',
-        'git@github.com:scrapinghub/kafka-scanner.git@0.2.6#egg=kafka_scanner'
+        'git@github.com:scrapinghub/kafka-scanner.git@0.3.4#egg=kafka_scanner'
     ],
     extras_require = {
         'bz2': ['bz2file'],
@@ -36,7 +36,7 @@ setup(
         'hubstorage': ['hubstorage', 'collection_scanner'],
         'jq': ['jq'],
         'odo': ['flatson', 'odo', 'pandas'],
-        'kafka': ['kafka-python', 'msgpack-python', 'kafka_scanner'],
+        'kafka': ['kafka-python', 'msgpack-python', 'kafka_scanner=0.3.4'],
         'notifications': ['Jinja2'],
         'csv': ['boltons'],
         'gcloud': ['gcloud'],
