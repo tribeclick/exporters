@@ -86,7 +86,8 @@ class BufferFile(object):
 
     def add_item_separator_to_file(self):
         content = self.formatter.item_separator
-        self.file.write(content)
+        if content:
+            self.file.write(content)
 
     def end_file(self):
         footer = self.formatter.format_footer()

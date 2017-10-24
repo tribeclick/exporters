@@ -16,6 +16,9 @@ class BaseLogger(object):
         self.logger = logging.getLogger(options.get('logger_name', 'export-pipeline'))
         self.logger.setLevel(level)
 
+    def exception(self, e):
+        self.logger.exception(e)
+
 
 class CategoryLogger(BaseLogger):
     name = "category_logger"
