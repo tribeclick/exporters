@@ -23,7 +23,7 @@ setup(
     author_email = 'info@scrapinghub',
     license = 'BSD',
     packages = find_packages(exclude=['tests']),
-    install_requires = ['six', 'retrying', 'requests', 'PyYAML', 'decorator', 'kafka_scanner'],
+    install_requires = ['six', 'retrying', 'requests', 'PyYAML', 'decorator'],
     dependency_links = [
         'git@github.com:scrapinghub/collection-scanner.git@0.1.5#egg=collection_scanner',
         'git@github.com:scrapinghub/flatson.git#egg=flatson',

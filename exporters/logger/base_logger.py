@@ -41,40 +41,46 @@ class CategoryLogger(BaseLogger):
 class ReaderLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- READER -- '+msg, level=level)
+        self.logger.log(msg=' -- READER -- ' + msg, level=level)
 
 
 class TransformLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- TRANSFORM -- '+msg, level=level)
+        self.logger.log(msg=' -- TRANSFORM -- ' + msg, level=level)
 
 
 class FilterLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- FILTER -- '+msg, level=level)
+        self.logger.log(msg=' -- FILTER -- ' + msg, level=level)
 
 
 class WriterLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- WRITER -- '+msg, level=level)
+        self.logger.log(msg=' -- WRITER -- ' + msg, level=level)
 
 
 class ExportManagerLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- EXPORTMANAGER -- '+msg, level=level)
+        self.logger.log(msg=' -- EXPORTMANAGER -- ' + msg, level=level)
 
 
 class PersistenceLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- PERSISTENCE -- '+msg, level=level)
+        self.logger.log(msg=' -- PERSISTENCE -- ' + msg, level=level)
 
 
 class StatsManagerLogger(CategoryLogger):
 
     def _log(self, msg, level):
-        self.logger.log(msg=' -- STATS MANAGER -- '+msg, level=level)
+        self.logger.log(msg=' -- STATS MANAGER -- ' + msg, level=level)
+
+
+class FormatterLogger(CategoryLogger):
+
+    def _log(self, msg, level):
+        self.logger.log(msg=' -- FORMATTER -- ' + msg, level=level)

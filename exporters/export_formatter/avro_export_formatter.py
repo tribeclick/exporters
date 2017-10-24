@@ -45,9 +45,10 @@ class AvroExportFormatter(BaseExportFormatter):
         try:
             self.writer.write(item)
             item_value = self.writer.fo.getvalue()
+            return item_value
         except Exception as e:
-            print(e)
+            self.logger.warn(item)
+            self.logger.error(e)
         finally:
             self._clear_buffer()
-        return item_value
 
