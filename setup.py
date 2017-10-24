@@ -27,7 +27,8 @@ setup(
     dependency_links = [
         'git@github.com:scrapinghub/collection-scanner.git@0.1.5#egg=collection_scanner',
         'git@github.com:scrapinghub/flatson.git#egg=flatson',
-        'kafka-scanner=0.3.4'
+        'kafka-scanner=0.3.4',
+        'dateparser'
     ],
     extras_require = {
         'bz2': ['bz2file'],
