@@ -1,8 +1,8 @@
 import json
 import six
-from fastavro.writer import Writer, write_data, null_write_block, write_long
 import io
 
+from exporters.exceptions import ConfigurationError
 from exporters.export_formatter.base_export_formatter import BaseExportFormatter
 
 
@@ -14,25 +14,42 @@ class AvroExportFormatter(BaseExportFormatter):
     This allows for streaming and keeps the files consistency even if the process
     ends unexpectedly
 
+        - schema(string)
+            json-encoded schema for the data to use in avro formatter
+
         - schema_path(string)
-            path to the json schema for the data to use in avro export.
+            path to the json schema for the data to use in avro formatter.
+            Useful for large schemas if readibility of the job json file is important
     """
 
     supported_options = {
-        'schema_path': {'type': six.string_types},
+        'schema_path': {'type': six.string_types, 'default': None},
+        'schema': {'type': (dict, list), 'default': None},
     }
     file_extension = 'avro'
+    item_separator = ''
 
     def __init__(self, *args, **kwargs):
         super(AvroExportFormatter, self).__init__(*args, **kwargs)
-        with open(self.read_option('schema_path')) as fname:
-            self.schema = json.load(fname)
-        self.file_extension = 'avro'
+        self.schema = self._get_schema()
+        self._setup_avrowriter()
+
+    def _get_schema(self):
+        if self.read_option('schema_path'):
+            with open(self.read_option('schema_path')) as fname:
+                return json.load(fname)
+        elif self.read_option('schema'):
+            return self.read_option('schema')
+        else:
+            raise ConfigurationError(
+                'Avro formatter requires at least one of: schema or schema_path')
+
+    def _setup_avrowriter(self):
+        from fastavro.writer import Writer
         header_buffer = io.BytesIO()
         self.writer = Writer(fo=header_buffer, schema=self.schema, sync_interval=0)
         self.header_value = header_buffer.getvalue()
         self._clear_buffer()
-        self.item_separator = ''
 
     def format_header(self):
         return self.header_value
@@ -42,14 +59,7 @@ class AvroExportFormatter(BaseExportFormatter):
         self.writer.fo.truncate()
 
     def format(self, item):
-        item_value = None
-        try:
-            self.writer.write(item)
-            item_value = self.writer.fo.getvalue()
-        except Exception as e:
-            self.logger.exception(e)
-            self.logger.warning(item)
-        finally:
-            self._clear_buffer()
+        self.writer.write(item)
+        item_value = self.writer.fo.getvalue()
+        self._clear_buffer()
         return item_value
-
