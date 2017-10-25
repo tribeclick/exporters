@@ -59,7 +59,11 @@ class AvroExportFormatter(BaseExportFormatter):
         self.writer.fo.truncate()
 
     def format(self, item):
-        self.writer.write(item)
-        item_value = self.writer.fo.getvalue()
-        self._clear_buffer()
+        try:
+            self.writer.write(item)
+            item_value = self.writer.fo.getvalue()
+        except Exception as e:
+            item_value = None
+        finally:
+            self._clear_buffer()
         return item_value
